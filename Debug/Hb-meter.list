@@ -618,9 +618,9 @@ if(i>2){
  800041e:	781b      	ldrb	r3, [r3, #0]
  8000420:	2b02      	cmp	r3, #2
  8000422:	d902      	bls.n	800042a <timerUpCallBack+0x1e>
-	i=0;
+	i=1;
  8000424:	4b04      	ldr	r3, [pc, #16]	; (8000438 <timerUpCallBack+0x2c>)
- 8000426:	2200      	movs	r2, #0
+ 8000426:	2201      	movs	r2, #1
  8000428:	701a      	strb	r2, [r3, #0]
 }
 timerEventHandler(i);

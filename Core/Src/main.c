@@ -282,7 +282,7 @@ static void MX_GPIO_Init(void)
 void timerUpCallBack(void){
 i+=1;
 if(i>2){
-	i=0;
+	i=1;
 }
 timerEventHandler(i);
 
