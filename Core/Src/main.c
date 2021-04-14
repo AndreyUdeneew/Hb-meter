@@ -46,7 +46,7 @@ TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN PV */
 uint32_t leds[3];
-uint16_t dat1,dat2,dat3,dat4,dat5,dat6;
+uint16_t dat1,dat2,dat3,dat4,dat5,dat6,delta1,delta2,delta3;
 uint8_t i=0;
 /* USER CODE END PV */
 
@@ -181,21 +181,62 @@ static void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.DiscontinuousConvMode = ENABLE;
+  hadc1.Init.NbrOfDiscConversion = 1;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 1;
+  hadc1.Init.NbrOfConversion = 6;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_3;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Rank = ADC_REGULAR_RANK_4;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_6;
+  sConfig.Rank = ADC_REGULAR_RANK_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_7;
+  sConfig.Rank = ADC_REGULAR_RANK_6;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -292,17 +333,50 @@ void timerEventHandler(uint8_t i){
 	if(i==0){
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat1 = (uint32_t) HAL_ADC_GetValue(&hadc1);
+     dat1 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+
+	 HAL_ADC_Start(&hadc1);
+     HAL_ADC_PollForConversion(&hadc1,100);
+     dat2 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+
+     if(dat1>=dat2){
+     delta1=dat1-dat2;
+     }
+     else{
+    	 delta1=dat2-dat1;
+     }
 }
 	if(i==1){
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat1 = (uint32_t) HAL_ADC_GetValue(&hadc1);
+     dat3 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+
+	 HAL_ADC_Start(&hadc1);
+     HAL_ADC_PollForConversion(&hadc1,100);
+     dat4 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+
+     if(dat3>=dat4){
+          delta2=dat3-dat4;
+          }
+          else{
+         	 delta2=dat4-dat3;
+          }
 }
 	if(i==2){
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat1 = (uint32_t) HAL_ADC_GetValue(&hadc1);
+     dat5 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+
+	 HAL_ADC_Start(&hadc1);
+     HAL_ADC_PollForConversion(&hadc1,100);
+     dat6 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+
+     if(dat5>=dat6){
+          delta3=dat5-dat6;
+          }
+          else{
+         	 delta3=dat6-dat5;
+          }
 }
 }
 /* USER CODE END 4 */
