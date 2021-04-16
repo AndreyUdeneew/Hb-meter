@@ -19,7 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "math.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -46,7 +46,8 @@ TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN PV */
 uint32_t leds[3];
-uint16_t dat1,dat2,dat3,dat4,dat5,dat6,delta1,delta2,delta3;
+float dat1,dat2,dat3,dat4,dat5,dat6,delta1,delta2,delta3;
+float OD1,OD2,OD3,Ua1,Ua2,Ua3;
 uint8_t i=0;
 /* USER CODE END PV */
 
@@ -100,6 +101,7 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim1);
+  HAL_ADCEx_Calibration_Start(&hadc1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -333,50 +335,60 @@ void timerEventHandler(uint8_t i){
 	if(i==0){
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat1 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+     dat1 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
 
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat2 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+     dat2 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
 
      if(dat1>=dat2){
      delta1=dat1-dat2;
+      OD1=(float)logf(dat2/dat1);
      }
      else{
     	 delta1=dat2-dat1;
+    	  OD1=(float)logf(dat1/dat2);
      }
+     Ua1=OD1/(-0.508);
 }
 	if(i==1){
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat3 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+//     dat3 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+     dat3 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
 
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat4 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+     dat4 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
 
      if(dat3>=dat4){
           delta2=dat3-dat4;
+           OD2=(float)logf(dat4/dat3);
           }
           else{
          	 delta2=dat4-dat3;
+         	 OD2=(float)logf(dat3/dat4);
           }
+     Ua2=OD2/(-0.508);
 }
 	if(i==2){
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat5 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+     dat5 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
 
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat6 = (uint16_t) HAL_ADC_GetValue(&hadc1);
+     dat6 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
 
      if(dat5>=dat6){
           delta3=dat5-dat6;
+          OD3=(float)logf(dat6/dat5);
           }
           else{
          	 delta3=dat6-dat5;
+         	OD3=(float)logf(dat5/dat6);
           }
+     Ua3=OD3/(-0.508);
 }
 }
 /* USER CODE END 4 */
