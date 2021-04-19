@@ -46,8 +46,21 @@ TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN PV */
 uint32_t leds[3];
-float dat1,dat2,dat3,dat4,dat5,dat6,delta1,delta2,delta3;
-float OD1,OD2,OD3,Ua1,Ua2,Ua3;
+uint16_t dat_660_discr_1,dat_660_discr_2,dat_880_discr_1,dat_880_discr_2,dat_940_discr_1,dat_940_discr_2;
+float data_660nm_1,data_660nm_2,data_880nm_1,data_880nm_2,data_940nm_1,data_940nm_2,delta1,delta2,delta3;
+float OD_660nm,OD_880nm,OD_940nm,Ua_660nm,Ua_880nm,Ua_940nm,CHb,CHbO2,CH2O;
+float det;
+
+// 	Extinction matrix
+float E_hb_660=0.8; float E_HbO2_660=0.08; float E_H2O_660=0.001;
+float E_hb_880=0.2; float E_HbO2_880=0.3;  float E_H2O_880=0.05;
+float E_hb_940=0.2; float E_HbO2_940=0.3;  float E_H2O_940=0.08;
+
+//inverted extinction matrix
+float E_Hb_660_=119.048; float E_HbO2_660_=29.762; float E_H2O_660_=29.762;
+float E_Hb_880_=11.905; float E_HbO2_880_=44.643;  float E_H2O_880_=44.643;
+float E_Hb_940_=0.149; float E_HbO2_940_=7.441;  float E_H2O_940_=11.905;
+
 uint8_t i=0;
 /* USER CODE END PV */
 
@@ -332,64 +345,75 @@ timerEventHandler(i);
 }
 void timerEventHandler(uint8_t i){
 	GPIOC->ODR=leds[i];
-	if(i==0){
+	if(i==0){				//	660 nm LED
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat1 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
+     dat_660_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
+     data_660nm_1 = ((float)dat_660_discr_1)*3/4096;
 
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat2 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
+     dat_660_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
+     data_660nm_2 = ((float)dat_660_discr_2)*3/4096;
 
-     if(dat1>=dat2){
-     delta1=dat1-dat2;
-      OD1=(float)logf(dat2/dat1);
+     if(data_660nm_1>=data_660nm_2){
+//     delta1=dat1-dat2;
+      OD_660nm=(float)logf(data_660nm_2/data_660nm_1);
      }
      else{
-    	 delta1=dat2-dat1;
-    	  OD1=(float)logf(dat1/dat2);
+//    	 delta1=dat2-dat1;
+    	 OD_660nm=(float)logf(data_660nm_1/data_660nm_2);
      }
-     Ua1=OD1/(-0.508);
+     Ua_660nm=OD_660nm/(-0.508);
 }
-	if(i==1){
+	if(i==1){			//	880 nm LED
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-//     dat3 = (uint16_t) HAL_ADC_GetValue(&hadc1);
-     dat3 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
+     dat_880_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
+     data_880nm_1 = ((float)dat_880_discr_1)*3/4096;
 
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat4 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
+     dat_880_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
+     data_880nm_2 = ((float)dat_880_discr_2)*3/4096;
 
-     if(dat3>=dat4){
-          delta2=dat3-dat4;
-           OD2=(float)logf(dat4/dat3);
+     if(data_880nm_1>=data_880nm_2){
+//          delta2=dat3-dat4;
+           OD_880nm=(float)logf(data_880nm_2/data_880nm_1);
           }
           else{
-         	 delta2=dat4-dat3;
-         	 OD2=(float)logf(dat3/dat4);
+//         	 delta2=dat4-dat3;
+         	 OD_880nm=(float)logf(data_880nm_1/data_880nm_2);
           }
-     Ua2=OD2/(-0.508);
+     Ua_880nm=OD_880nm/(-0.508);
 }
-	if(i==2){
+	if(i==2){			//	940 nm LED
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat5 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
+     dat_940_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
+     data_940nm_1 = ((float)dat_940_discr_1)*3/4096;
 
 	 HAL_ADC_Start(&hadc1);
      HAL_ADC_PollForConversion(&hadc1,100);
-     dat6 = ((float)HAL_ADC_GetValue(&hadc1))*3/4096;
+     dat_940_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
+     data_940nm_2 = ((float)dat_940_discr_2)*3/4096;
 
-     if(dat5>=dat6){
-          delta3=dat5-dat6;
-          OD3=(float)logf(dat6/dat5);
+     if(data_940nm_1>=data_940nm_2){
+//          delta3=dat5-dat6;
+          OD_940nm=(float)logf(data_940nm_2/data_940nm_1);
           }
           else{
-         	 delta3=dat6-dat5;
-         	OD3=(float)logf(dat5/dat6);
+//         	 delta3=dat6-dat5;
+         	OD_940nm=(float)logf(data_940nm_1/data_940nm_2);
           }
-     Ua3=OD3/(-0.508);
+     Ua_940nm=OD_940nm/(-0.508);
+
+     CHb=(E_Hb_660_*Ua_660nm+E_Hb_880_*Ua_880nm+E_Hb_940_*Ua_940nm)*67000;
+	 CHbO2=(E_HbO2_660_*Ua_660nm+E_HbO2_880_*Ua_880nm+E_HbO2_940_*Ua_940nm)*67000;
+	 CH2O=(E_H2O_660_*Ua_660nm+E_H2O_880_*Ua_880nm+E_H2O_940_*Ua_940nm)*18;
 }
+	// here we will cound Hb concentrations
+
 }
 /* USER CODE END 4 */
 
