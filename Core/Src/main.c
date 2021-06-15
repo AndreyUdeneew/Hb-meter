@@ -46,6 +46,7 @@ TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN PV */
 uint32_t leds[3];
+uint32_t ledActive;
 uint16_t dat_660_discr_1,dat_660_discr_2,dat_880_discr_1,dat_880_discr_2,dat_940_discr_1,dat_940_discr_2;
 float data_660nm_1,data_660nm_2,data_880nm_1,data_880nm_2,data_940nm_1,data_940nm_2,delta1,delta2,delta3;
 float OD_660nm,OD_880nm,OD_940nm,Ua_660nm,Ua_880nm,Ua_940nm,CHb,CHbO2,CH2O;
@@ -347,73 +348,90 @@ timerEventHandler(i);
 }
 void timerEventHandler(uint8_t i){
 	GPIOC->ODR=leds[i];
-	if(i==0){				//	660 nm LED
-	 HAL_ADC_Start(&hadc1);
-     HAL_ADC_PollForConversion(&hadc1,100);
-     dat_660_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
-     data_660nm_1 = ((float)dat_660_discr_1)*3/4096;
+	ledActive=leds[i];
+//	if(i==0){				//	660 nm LED
+//	 HAL_ADC_Start(&hadc1);
+//     HAL_ADC_PollForConversion(&hadc1,100);
+//     dat_660_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
+//     data_660nm_1 = ((float)dat_660_discr_1)*3/4096;
+//	 HAL_ADC_Start(&hadc1);
+//     HAL_ADC_PollForConversion(&hadc1,100);
+//
+//     dat_660_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
+//     data_660nm_2 = ((float)dat_660_discr_2)*3/4096;
 
-	 HAL_ADC_Start(&hadc1);
-     HAL_ADC_PollForConversion(&hadc1,100);
-     dat_660_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
-     data_660nm_2 = ((float)dat_660_discr_2)*3/4096;
+//	 ADC1->CR2 &= ~ADC_CR2_ADON; // запретить АЦП
+//	 ADC1->SQR1 =0; // 1 регулярный канал
+//	 ADC1->SQR3 =0; // 1 преобразование - канал 0
+//	 ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+//	 ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+//	 ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
+//	 ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+////	   while(!(ADC1->SR & ADC_SR_EOC)){} ; // ожидание завершения преобразования
+//	 HAL_Delay(1);
+//     dat_660_discr_1=ADC1->DR * 3 / 4096. ; // пересчет в напряжение
 
-     if(data_660nm_1>=data_660nm_2){
-//     delta1=dat1-dat2;
-      OD_660nm=(float)logf(data_660nm_2/data_660nm_1);
-     }
-     else{
-//    	 delta1=dat2-dat1;
-    	 OD_660nm=(float)logf(data_660nm_1/data_660nm_2);
-     }
-     Ua_660nm=OD_660nm/(-0.508);
-}
-	if(i==1){			//	880 nm LED
-	 HAL_ADC_Start(&hadc1);
-     HAL_ADC_PollForConversion(&hadc1,100);
-     dat_880_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
-     data_880nm_1 = ((float)dat_880_discr_1)*3/4096;
-
-	 HAL_ADC_Start(&hadc1);
-     HAL_ADC_PollForConversion(&hadc1,100);
-     dat_880_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
-     data_880nm_2 = ((float)dat_880_discr_2)*3/4096;
-
-     if(data_880nm_1>=data_880nm_2){
-//          delta2=dat3-dat4;
-           OD_880nm=(float)logf(data_880nm_2/data_880nm_1);
-          }
-          else{
-//         	 delta2=dat4-dat3;
-         	 OD_880nm=(float)logf(data_880nm_1/data_880nm_2);
-          }
-     Ua_880nm=OD_880nm/(-0.508);
-}
-	if(i==2){			//	940 nm LED
-	 HAL_ADC_Start(&hadc1);
-     HAL_ADC_PollForConversion(&hadc1,100);
-     dat_940_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
-     data_940nm_1 = ((float)dat_940_discr_1)*3/4096;
-
-	 HAL_ADC_Start(&hadc1);
-     HAL_ADC_PollForConversion(&hadc1,100);
-     dat_940_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
-     data_940nm_2 = ((float)dat_940_discr_2)*3/4096;
-
-     if(data_940nm_1>=data_940nm_2){
-//          delta3=dat5-dat6;
-          OD_940nm=(float)logf(data_940nm_2/data_940nm_1);
-          }
-          else{
-//         	 delta3=dat6-dat5;
-         	OD_940nm=(float)logf(data_940nm_1/data_940nm_2);
-          }
-     Ua_940nm=OD_940nm/(-0.508);
-
-     CHb=(E_Hb_660_*Ua_660nm+E_Hb_880_*Ua_880nm+E_Hb_940_*Ua_940nm)*67000;
-	 CHbO2=(E_HbO2_660_*Ua_660nm+E_HbO2_880_*Ua_880nm+E_HbO2_940_*Ua_940nm)*67000;
-	 CH2O=(E_H2O_660_*Ua_660nm+E_H2O_880_*Ua_880nm+E_H2O_940_*Ua_940nm)*18;
-}
+//     ADC1->CR2 |= ADC_CR2_JSWSTART; // запуск АЦП
+//     while(!(ADC1->SR & ADC_SR_EOC)) ; // ожидание завершения преобразования
+//     dat_660_discr_2=ADC1->JDR1 * 3 / 4096. ; // пересчет в напряжение
+//
+//
+//     if(data_660nm_1>=data_660nm_2){
+////     delta1=dat1-dat2;
+//      OD_660nm=(float)logf(data_660nm_2/data_660nm_1);
+//     }
+//     else{
+////    	 delta1=dat2-dat1;
+//    	 OD_660nm=(float)logf(data_660nm_1/data_660nm_2);
+//     }
+//     Ua_660nm=OD_660nm/(-0.508);
+//}
+//	if(i==1){			//	880 nm LED
+//	 HAL_ADC_Start(&hadc1);
+//     HAL_ADC_PollForConversion(&hadc1,100);
+//     dat_880_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
+//     data_880nm_1 = ((float)dat_880_discr_1)*3/4096;
+//
+//	 HAL_ADC_Start(&hadc1);
+//     HAL_ADC_PollForConversion(&hadc1,100);
+//     dat_880_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
+//     data_880nm_2 = ((float)dat_880_discr_2)*3/4096;
+//
+//     if(data_880nm_1>=data_880nm_2){
+////          delta2=dat3-dat4;
+//           OD_880nm=(float)logf(data_880nm_2/data_880nm_1);
+//          }
+//          else{
+////         	 delta2=dat4-dat3;
+//         	 OD_880nm=(float)logf(data_880nm_1/data_880nm_2);
+//          }
+//     Ua_880nm=OD_880nm/(-0.508);
+//}
+//	if(i==2){			//	940 nm LED
+//	 HAL_ADC_Start(&hadc1);
+//     HAL_ADC_PollForConversion(&hadc1,100);
+//     dat_940_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
+//     data_940nm_1 = ((float)dat_940_discr_1)*3/4096;
+//
+//	 HAL_ADC_Start(&hadc1);
+//     HAL_ADC_PollForConversion(&hadc1,100);
+//     dat_940_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
+//     data_940nm_2 = ((float)dat_940_discr_2)*3/4096;
+//
+//     if(data_940nm_1>=data_940nm_2){
+////          delta3=dat5-dat6;
+//          OD_940nm=(float)logf(data_940nm_2/data_940nm_1);
+//          }
+//          else{
+////         	 delta3=dat6-dat5;
+//         	OD_940nm=(float)logf(data_940nm_1/data_940nm_2);
+//          }
+//     Ua_940nm=OD_940nm/(-0.508);
+//
+//     CHb=(E_Hb_660_*Ua_660nm+E_Hb_880_*Ua_880nm+E_Hb_940_*Ua_940nm)*67000;
+//	 CHbO2=(E_HbO2_660_*Ua_660nm+E_HbO2_880_*Ua_880nm+E_HbO2_940_*Ua_940nm)*67000;
+//	 CH2O=(E_H2O_660_*Ua_660nm+E_H2O_880_*Ua_880nm+E_H2O_940_*Ua_940nm)*18;
+//}
 	// here we will cound Hb concentrations
 
 }
