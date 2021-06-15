@@ -7,4 +7,4 @@ main.c:274:13:MX_TIM1_Init	32	static
 main.c:320:13:MX_GPIO_Init	32	static
 main.c:341:6:timerUpCallBack	8	static
 main.c:349:6:timerEventHandler	16	static
-main.c:444:6:Error_Handler	8	static,ignoring_inline_asm
+main.c:443:6:Error_Handler	8	static,ignoring_inline_asm

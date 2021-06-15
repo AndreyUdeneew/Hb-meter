@@ -116,7 +116,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_Delay(1);
   ADC1->CR2 |= ADC_CR2_CAL; // запуск калибровки
-  while ((ADC1->CR2 & ADC_CR2_CAL) != 0) ; // ожидание окончания калибровки
+//  while ((ADC1->CR2 & ADC_CR2_CAL) != 0){} ; // ожидание окончания калибровки
 //  HAL_ADCEx_Calibration_Start(&hadc1);
   HAL_TIM_Base_Start_IT(&htim1);
   /* USER CODE END 2 */
@@ -344,12 +344,11 @@ if(i>2){
 	i=0;
 }
 timerEventHandler(i);
-
+//ledActive=leds[i];
 }
 void timerEventHandler(uint8_t i){
 	GPIOC->ODR=leds[i];
-	ledActive=leds[i];
-//	if(i==0){				//	660 nm LED
+	if(i==0){				//	660 nm LED
 //	 HAL_ADC_Start(&hadc1);
 //     HAL_ADC_PollForConversion(&hadc1,100);
 //     dat_660_discr_1=(uint16_t)HAL_ADC_GetValue(&hadc1);
@@ -360,16 +359,16 @@ void timerEventHandler(uint8_t i){
 //     dat_660_discr_2=(uint16_t)HAL_ADC_GetValue(&hadc1);
 //     data_660nm_2 = ((float)dat_660_discr_2)*3/4096;
 
-//	 ADC1->CR2 &= ~ADC_CR2_ADON; // запретить АЦП
-//	 ADC1->SQR1 =0; // 1 регулярный канал
-//	 ADC1->SQR3 =0; // 1 преобразование - канал 0
-//	 ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
-//	 ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
-//	 ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
-//	 ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
-////	   while(!(ADC1->SR & ADC_SR_EOC)){} ; // ожидание завершения преобразования
+	 ADC1->CR2 &= ~ADC_CR2_ADON; // запретить АЦП
+	 ADC1->SQR1 =0; // 1 регулярный канал
+	 ADC1->SQR3 =0; // 1 преобразование - канал 0
+	 ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+	 ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+	 ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
+	 ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+	   while((ADC1->SR & ADC_SR_EOC)!=0){} ; // ожидание завершения преобразования
 //	 HAL_Delay(1);
-//     dat_660_discr_1=ADC1->DR * 3 / 4096. ; // пересчет в напряжение
+     dat_660_discr_1=ADC1->DR * 3 / 4096. ; // пересчет в напряжение
 
 //     ADC1->CR2 |= ADC_CR2_JSWSTART; // запуск АЦП
 //     while(!(ADC1->SR & ADC_SR_EOC)) ; // ожидание завершения преобразования
@@ -385,7 +384,7 @@ void timerEventHandler(uint8_t i){
 //    	 OD_660nm=(float)logf(data_660nm_1/data_660nm_2);
 //     }
 //     Ua_660nm=OD_660nm/(-0.508);
-//}
+}
 //	if(i==1){			//	880 nm LED
 //	 HAL_ADC_Start(&hadc1);
 //     HAL_ADC_PollForConversion(&hadc1,100);
