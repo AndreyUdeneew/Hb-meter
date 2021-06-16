@@ -344,7 +344,7 @@ if(i>2){
 	i=0;
 }
 timerEventHandler(i);
-//ledActive=leds[i];
+ledActive=i;
 }
 void timerEventHandler(uint8_t i){
 	GPIOC->ODR=leds[i];
