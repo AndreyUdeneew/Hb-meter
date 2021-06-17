@@ -47,9 +47,9 @@ TIM_HandleTypeDef htim1;
 /* USER CODE BEGIN PV */
 uint32_t leds[3];
 uint16_t ledActive;
-uint16_t dat_660_discr_1,dat_660_discr_2,dat_880_discr_1,dat_880_discr_2,dat_940_discr_1,dat_940_discr_2;
+uint16_t dat_660_discr_1,dat_660_discr_2,dat_880_discr_1,dat_880_discr_2,dat_940_discr_1,dat_940_discr_2, OD_660nm,OD_880nm,OD_940nm,Ua_660nm,Ua_880nm,Ua_940nm,CHb,CHbO2,CH2O;
 float data_660nm_1,data_660nm_2,data_880nm_1,data_880nm_2,data_940nm_1,data_940nm_2,delta1,delta2,delta3;
-float OD_660nm,OD_880nm,OD_940nm,Ua_660nm,Ua_880nm,Ua_940nm,CHb,CHbO2,CH2O;
+//float OD_660nm,OD_880nm,OD_940nm,Ua_660nm,Ua_880nm,Ua_940nm,CHb,CHbO2,CH2O;
 float det;
 
 // 	Extinction matrix
@@ -376,13 +376,13 @@ void timerEventHandler(uint8_t i){
    	   dat_660_discr_2=ADC1->DR;
 	   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
 
-//     if(dat_660_discr_1>=dat_660_discr_2){
-//      OD_660nm=(float)logf(dat_660_discr_2/dat_660_discr_1);
-//     }
-//     else{
-//    	 OD_660nm=(float)logf(dat_660_discr_1/dat_660_discr_2);
-//     }
-//     Ua_660nm=OD_660nm/(-0.508);
+     if(dat_660_discr_1>=dat_660_discr_2){
+      OD_660nm=(dat_660_discr_2/dat_660_discr_1);
+     }
+     else{
+    	 OD_660nm=(dat_660_discr_1/dat_660_discr_2);
+     }
+     Ua_660nm=OD_660nm/(-0.508);
 }
 	if(i==1){			//	880 nm LED
 		 ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
@@ -402,13 +402,13 @@ void timerEventHandler(uint8_t i){
 	   	   dat_880_discr_2=ADC1->DR;
 		   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
 //
-//		     if(dat_880_discr_1>=dat_880_discr_2){
-//		      OD_880nm=(float)logf(dat_880_discr_2/dat_880_discr_1);
-//		     }
-//		     else{
-//		    	 OD_880nm=(float)logf(dat_880_discr_1/dat_880_discr_2);
-//		     }
-//		     Ua_880nm=OD_880nm/(-0.508);
+		     if(dat_880_discr_1>=dat_880_discr_2){
+		      OD_880nm=(dat_880_discr_2/dat_880_discr_1);
+		     }
+		     else{
+		    	 OD_880nm=(dat_880_discr_1/dat_880_discr_2);
+		     }
+		     Ua_880nm=OD_880nm/(-0.508);
 }
 	if(i==2){			//	940 nm LED
 		 ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
@@ -430,12 +430,12 @@ void timerEventHandler(uint8_t i){
 		   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
 //
 //		     if(dat_940_discr_1>=dat_940_discr_2){
-//		      OD_940nm=(float)logf(dat_940_discr_2/dat_940_discr_1);
+		      OD_940nm=(dat_940_discr_2/dat_940_discr_1);
 //		     }
 //		     else{
-//		    	 OD_940nm=(float)logf(dat_940_discr_1/dat_940_discr_2);
+//		    	 OD_940nm=(dat_940_discr_1/dat_940_discr_2);
 //		     }
-//		     Ua_940nm=OD_940nm/(-0.508);
+		     Ua_940nm=OD_940nm/(-0.508);
 //
 //     CHb=(E_Hb_660_*Ua_660nm+E_Hb_880_*Ua_880nm+E_Hb_940_*Ua_940nm)*67000;
 //	 CHbO2=(E_HbO2_660_*Ua_660nm+E_HbO2_880_*Ua_880nm+E_HbO2_940_*Ua_940nm)*67000;
