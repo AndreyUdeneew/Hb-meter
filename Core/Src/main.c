@@ -20,9 +20,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -378,9 +379,11 @@ void timerEventHandler(uint8_t i){
 
      if(dat_660_discr_1>=dat_660_discr_2){
       OD_660nm=(float)dat_660_discr_2/dat_660_discr_1;
+      OD_660nm=logf(OD_660nm);
      }
      else{
     	 OD_660nm=(float)dat_660_discr_1/dat_660_discr_2;
+    	 OD_660nm=logf(OD_660nm);
      }
      Ua_660nm=OD_660nm/(-0.508);
 }
@@ -404,9 +407,11 @@ void timerEventHandler(uint8_t i){
 //
 		     if(dat_880_discr_1>=dat_880_discr_2){
 		      OD_880nm=(float)dat_880_discr_2/dat_880_discr_1;
+		      OD_880nm=logf(OD_880nm);
 		     }
 		     else{
 		    	 OD_880nm=(float)dat_880_discr_1/dat_880_discr_2;
+		    	 OD_880nm=logf(OD_880nm);
 		     }
 		     Ua_880nm=OD_880nm/(-0.508);
 }
@@ -431,9 +436,11 @@ void timerEventHandler(uint8_t i){
 //
 		     if(dat_940_discr_1>=dat_940_discr_2){
 		      OD_940nm=(float)dat_940_discr_2/dat_940_discr_1;
+		      OD_940nm=logf(OD_940nm);
 		     }
 		     else{
 		    	 OD_940nm=(float)dat_940_discr_1/dat_940_discr_2;
+		    	 OD_940nm=logf(OD_940nm);
 		     }
 		     Ua_940nm=OD_940nm/(-0.508);
 //
