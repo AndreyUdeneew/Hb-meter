@@ -20,31 +20,22 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "math.h"
 /* USER CODE END Includes */
-
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 /* USER CODE END PTD */
-
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 /* USER CODE END PD */
-
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
 /* USER CODE END PM */
-
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-
 TIM_HandleTypeDef htim1;
-
 /* USER CODE BEGIN PV */
 uint32_t leds[3];
 uint16_t ledActive;
@@ -52,20 +43,16 @@ uint16_t dat_660_discr_1,dat_660_discr_2,dat_880_discr_1,dat_880_discr_2,dat_940
 float data_660nm_1,data_660nm_2,data_880nm_1,data_880nm_2,data_940nm_1,data_940nm_2,delta1,delta2,delta3;
 float OD_660nm,OD_880nm,OD_940nm,Ua_660nm,Ua_880nm,Ua_940nm,CHb,CHbO2,CH2O;
 float det;
-
-// 	Extinction matrix
+//     Extinction matrix
 float E_hb_660=0.8; float E_HbO2_660=0.08; float E_H2O_660=0.001;
 float E_hb_880=0.2; float E_HbO2_880=0.3;  float E_H2O_880=0.05;
 float E_hb_940=0.2; float E_HbO2_940=0.3;  float E_H2O_940=0.08;
-
 //inverted extinction matrix
 float E_Hb_660_=119.048; float E_HbO2_660_=29.762; float E_H2O_660_=29.762;
 float E_Hb_880_=11.905; float E_HbO2_880_=44.643;  float E_H2O_880_=44.643;
 float E_Hb_940_=0.149; float E_HbO2_940_=7.441;  float E_H2O_940_=11.905;
-
 uint8_t i=0;
 /* USER CODE END PV */
-
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -75,12 +62,9 @@ static void MX_TIM1_Init(void);
 void timerUpCallBack(void);
 void timerEventHandler(uint8_t i);
 /* USER CODE END PFP */
-
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
-
 /**
   * @brief  The application entry point.
   * @retval int
@@ -88,28 +72,20 @@ void timerEventHandler(uint8_t i);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	leds[0]=0x2000;
-	leds[1]=0x4000;
-	leds[2]=0x8000;
-	i=0;
+    leds[0]=0x2000;
+    leds[1]=0x4000;
+    leds[2]=0x8000;
+    i=0;
   /* USER CODE END 1 */
-
   /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* USER CODE BEGIN Init */
-
   /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
   /* USER CODE BEGIN SysInit */
-
   /* USER CODE END SysInit */
-
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC1_Init();
@@ -120,31 +96,28 @@ int main(void)
 //  while ((ADC1->CR2 & ADC_CR2_CAL) != 0){} ; // ожидание окончания калибровки
 //  HAL_ADCEx_Calibration_Start(&hadc1);
   HAL_TIM_Base_Start_IT(&htim1);
-	 ADC1->CR2 &= ~ADC_CR2_ADON; // запретить АЦП
-	 ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
-	 ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
-//	 ADC1->SQR1 =0; // 1 регулярный канал
-//	 ADC1->SQR3 =0; // 1 преобразование - канал 0
-	 ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
-	 ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
-	 ADC1->CR2 |= ADC_CR2_ADON;
+     ADC1->CR2 &= ~ADC_CR2_ADON; // запретить АЦП
+     ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
+     ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
+//     ADC1->SQR1 =0; // 1 регулярный канал
+//     ADC1->SQR3 =0; // 1 преобразование - канал 0
+     ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+     ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+     ADC1->CR2 |= ADC_CR2_ADON;
   /* USER CODE END 2 */
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  	GPIOC->ODR|=1<<13;
-//	  	HAL_Delay(500);
-//	  	GPIOC->ODR&=~(1<<13);
-//	  	HAL_Delay(500);
+//          GPIOC->ODR|=1<<13;
+//          HAL_Delay(500);
+//          GPIOC->ODR&=~(1<<13);
+//          HAL_Delay(500);
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
-
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -154,7 +127,6 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
-
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
@@ -176,7 +148,6 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
@@ -188,7 +159,6 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
-
 /**
   * @brief ADC1 Initialization Function
   * @param None
@@ -196,15 +166,10 @@ void SystemClock_Config(void)
   */
 static void MX_ADC1_Init(void)
 {
-
   /* USER CODE BEGIN ADC1_Init 0 */
-
   /* USER CODE END ADC1_Init 0 */
-
   ADC_ChannelConfTypeDef sConfig = {0};
-
   /* USER CODE BEGIN ADC1_Init 1 */
-
   /* USER CODE END ADC1_Init 1 */
   /** Common config
   */
@@ -270,11 +235,8 @@ static void MX_ADC1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN ADC1_Init 2 */
-
   /* USER CODE END ADC1_Init 2 */
-
 }
-
 /**
   * @brief TIM1 Initialization Function
   * @param None
@@ -282,16 +244,11 @@ static void MX_ADC1_Init(void)
   */
 static void MX_TIM1_Init(void)
 {
-
   /* USER CODE BEGIN TIM1_Init 0 */
-
   /* USER CODE END TIM1_Init 0 */
-
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
-
   /* USER CODE BEGIN TIM1_Init 1 */
-
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 0x00;
@@ -316,11 +273,8 @@ static void MX_TIM1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM1_Init 2 */
-
   /* USER CODE END TIM1_Init 2 */
-
 }
-
 /**
   * @brief GPIO Initialization Function
   * @param None
@@ -329,130 +283,135 @@ static void MX_TIM1_Init(void)
 static void MX_GPIO_Init(void)
 {
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-
   /* GPIO Ports Clock Enable */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOC);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOA);
-
   /**/
   LL_GPIO_SetOutputPin(GPIOC, OUT_1_Pin|OUT_2_Pin|OUT_3_Pin);
-
   /**/
   GPIO_InitStruct.Pin = OUT_1_Pin|OUT_2_Pin|OUT_3_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
 }
-
 /* USER CODE BEGIN 4 */
 void timerUpCallBack(void){
 i+=1;
 if(i>2){
-	i=0;
+    i=0;
 }
 timerEventHandler(i);
 ledActive=i*100;
 }
 void timerEventHandler(uint8_t i){
-	GPIOC->ODR=leds[i];
-	if(i==0){				//	660 nm LED
-		 ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
-		 ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
-	 ADC1->SQR1 =0; // 1 регулярный канал
-	 ADC1->SQR3 =0; // 1 преобразование - канал 0
-	 ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
-	 ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
-	 ADC1->CR2 |= ADC_CR2_ADON;
-	 ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
-	   while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
-	   dat_660_discr_1=(ADC1->DR);
-	   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+    GPIOC->ODR=leds[i];
+    if(i==0){                //    660 nm LED
+         ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
+         ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
+     ADC1->SQR1 =0; // 1 регулярный канал
+     ADC1->SQR3 =0x00; // 1 преобразование - канал 0
+     ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+     ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+     ADC1->CR2 |= ADC_CR2_ADON;
+     ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+       while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
+       dat_660_discr_1=(ADC1->DR);
+       ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+       ADC1->CR2 &= ~ADC_CR2_ADON;
 
    ADC1->SQR1 =0; // 1 регулярный канал
-   ADC1->SQR3 =1; // 1 преобразование - канал 1
+   ADC1->SQR3 =0x01; // 1 преобразование - канал 1
+   ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
    ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
    while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
-   	   dat_660_discr_2=ADC1->DR;
-	   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+          dat_660_discr_2=ADC1->DR;
+       ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+       ADC1->CR2 &= ~ADC_CR2_ADON;
 
-     if(dat_660_discr_1>=dat_660_discr_2){
+       if(dat_660_discr_1>=dat_660_discr_2){
       OD_660nm=(float)dat_660_discr_2/dat_660_discr_1;
       OD_660nm=logf(OD_660nm);
      }
      else{
-    	 OD_660nm=(float)dat_660_discr_1/dat_660_discr_2;
-    	 OD_660nm=logf(OD_660nm);
+         OD_660nm=(float)dat_660_discr_1/dat_660_discr_2;
+         OD_660nm=logf(OD_660nm);
      }
      Ua_660nm=OD_660nm/(-0.508);
 }
-	if(i==1){			//	880 nm LED
-		 ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
-		 ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
-		 ADC1->SQR1 =0; // 1 регулярный канал
-		 ADC1->SQR3 =0x03; // 1 преобразование - канал 0
-		 ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
-		 ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
-		 ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
-		 ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
-		   while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
-		   dat_880_discr_1=(ADC1->DR);
-		   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
-	   ADC1->SQR1 =0; // 1 регулярный канал
- 	   ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
-	   while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
-	   	   dat_880_discr_2=ADC1->DR;
-		   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
-//
-		     if(dat_880_discr_1>=dat_880_discr_2){
-		      OD_880nm=(float)dat_880_discr_2/dat_880_discr_1;
-		      OD_880nm=logf(OD_880nm);
-		     }
-		     else{
-		    	 OD_880nm=(float)dat_880_discr_1/dat_880_discr_2;
-		    	 OD_880nm=logf(OD_880nm);
-		     }
-		     Ua_880nm=OD_880nm/(-0.508);
+    if(i==1){            //    880 nm LED
+         ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
+         ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
+         ADC1->SQR1 =0; // 1 регулярный канал
+         ADC1->SQR3 =0x03; // 1 преобразование - канал 0
+         ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+         ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+         ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
+         ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+           while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
+           dat_880_discr_1=(ADC1->DR);
+           ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+           ADC1->CR2 &= ~ADC_CR2_ADON;
+
+           ADC1->SQR1 =0; // 1 регулярный канал
+              ADC1->SQR3 =0x04; // 1 преобразование - канал 4
+              ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
+              ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+              while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
+                     dat_880_discr_2=ADC1->DR;
+                  ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+                  ADC1->CR2 &= ~ADC_CR2_ADON;
+
+             if(dat_880_discr_1>=dat_880_discr_2){
+              OD_880nm=(float)dat_880_discr_2/dat_880_discr_1;
+              OD_880nm=logf(OD_880nm);
+             }
+             else{
+                 OD_880nm=(float)dat_880_discr_1/dat_880_discr_2;
+                 OD_880nm=logf(OD_880nm);
+             }
+             Ua_880nm=OD_880nm/(-0.508);
 }
-	if(i==2){			//	940 nm LED
-		 ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
-		 ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
-		 ADC1->SQR1 =0; // 1 регулярный канал
-		 ADC1->SQR3 =0x06; // 1 преобразование - канал 0
-		 ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
-		 ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
-		 ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
-		 ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
-		   while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
-		   dat_940_discr_1=(ADC1->DR);
-		   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
-	   ADC1->SQR1 =0; // 1 регулярный канал
-	   ADC1->SQR3 =0x07; // 1 преобразование - канал 1
-	   ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
-	   while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
-	   	   dat_940_discr_2=ADC1->DR;
-		   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+    if(i==2){            //    940 nm LED
+         ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
+         ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
+         ADC1->SQR1 =0; // 1 регулярный канал
+         ADC1->SQR3 =0x06; // 1 преобразование - канал 0
+         ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+         ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+         ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
+         ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+           while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
+           dat_940_discr_1=(ADC1->DR);
+           ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+           ADC1->CR2 &= ~ADC_CR2_ADON;
+
+       ADC1->SQR1 =0; // 1 регулярный канал
+       ADC1->SQR3 =0x07; // 1 преобразование - канал 7
+       ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
+       ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+       while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
+              dat_940_discr_2=ADC1->DR;
+           ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+           ADC1->CR2 &= ~ADC_CR2_ADON;
 //
-		     if(dat_940_discr_1>=dat_940_discr_2){
-		      OD_940nm=(float)dat_940_discr_2/dat_940_discr_1;
-		      OD_940nm=logf(OD_940nm);
-		     }
-		     else{
-		    	 OD_940nm=(float)dat_940_discr_1/dat_940_discr_2;
-		    	 OD_940nm=logf(OD_940nm);
-		     }
-		     Ua_940nm=OD_940nm/(-0.508);
+             if(dat_940_discr_1>=dat_940_discr_2){
+              OD_940nm=(float)dat_940_discr_2/dat_940_discr_1;
+              OD_940nm=logf(OD_940nm);
+             }
+             else{
+                 OD_940nm=(float)dat_940_discr_1/dat_940_discr_2;
+                 OD_940nm=logf(OD_940nm);
+             }
+             Ua_940nm=OD_940nm/(-0.508);
 //
 //     CHb=(E_Hb_660_*Ua_660nm+E_Hb_880_*Ua_880nm+E_Hb_940_*Ua_940nm)*67000;
-//	 CHbO2=(E_HbO2_660_*Ua_660nm+E_HbO2_880_*Ua_880nm+E_HbO2_940_*Ua_940nm)*67000;
-//	 CH2O=(E_H2O_660_*Ua_660nm+E_H2O_880_*Ua_880nm+E_H2O_940_*Ua_940nm)*18;
+//     CHbO2=(E_HbO2_660_*Ua_660nm+E_HbO2_880_*Ua_880nm+E_HbO2_940_*Ua_940nm)*67000;
+//     CH2O=(E_H2O_660_*Ua_660nm+E_H2O_880_*Ua_880nm+E_H2O_940_*Ua_940nm)*18;
 }
-	// here we will cound Hb concentrations
-
+    // here we will cound Hb concentrations
 }
 /* USER CODE END 4 */
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
@@ -464,12 +423,11 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
-//	  HAL_GPIO_TogglePin(LED13_GPIO_Port,LED13_Pin);
-	    HAL_Delay(250);
+//      HAL_GPIO_TogglePin(LED13_GPIO_Port,LED13_Pin);
+        HAL_Delay(250);
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
 #ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
@@ -486,5 +444,4 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
