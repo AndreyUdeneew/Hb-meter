@@ -73,6 +73,8 @@ void Error_Handler(void);
 #define OUT_2_GPIO_Port GPIOC
 #define OUT_3_Pin LL_GPIO_PIN_15
 #define OUT_3_GPIO_Port GPIOC
+#define START_Pin LL_GPIO_PIN_9
+#define START_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

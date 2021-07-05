@@ -24,18 +24,24 @@
 /* USER CODE BEGIN Includes */
 #include "math.h"
 /* USER CODE END Includes */
+
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 /* USER CODE END PTD */
+
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 /* USER CODE END PD */
+
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 /* USER CODE END PM */
+
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+
 TIM_HandleTypeDef htim1;
+
 /* USER CODE BEGIN PV */
 uint32_t leds[3];
 uint16_t ledActive;
@@ -53,6 +59,7 @@ float E_Hb_880_=11.905; float E_HbO2_880_=44.643;  float E_H2O_880_=44.643;
 float E_Hb_940_=0.149; float E_HbO2_940_=7.441;  float E_H2O_940_=11.905;
 uint8_t i=0;
 /* USER CODE END PV */
+
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -62,9 +69,11 @@ static void MX_TIM1_Init(void);
 void timerUpCallBack(void);
 void timerEventHandler(uint8_t i);
 /* USER CODE END PFP */
+
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 /* USER CODE END 0 */
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -77,25 +86,34 @@ int main(void)
     leds[2]=0x8000;
     i=0;
   /* USER CODE END 1 */
+
   /* MCU Configuration--------------------------------------------------------*/
+
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+
   /* USER CODE BEGIN Init */
   /* USER CODE END Init */
+
   /* Configure the system clock */
   SystemClock_Config();
+
   /* USER CODE BEGIN SysInit */
   /* USER CODE END SysInit */
+
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC1_Init();
+  while((GPIOB->IDR)&GPIO_IDR_IDR9)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_TIM_Base_Start_IT(&htim1);
   HAL_Delay(1);
   ADC1->CR2 |= ADC_CR2_CAL; // запуск калибровки
-//  while ((ADC1->CR2 & ADC_CR2_CAL) != 0){} ; // ожидание окончания калибровки
-//  HAL_ADCEx_Calibration_Start(&hadc1);
-  HAL_TIM_Base_Start_IT(&htim1);
+  while ((ADC1->CR2 & ADC_CR2_CAL) != 0){} ; // ожидание окончания калибровки
+  HAL_ADCEx_Calibration_Start(&hadc1);
+
      ADC1->CR2 &= ~ADC_CR2_ADON; // запретить АЦП
      ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
      ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
@@ -105,8 +123,10 @@ int main(void)
      ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
      ADC1->CR2 |= ADC_CR2_ADON;
   /* USER CODE END 2 */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
 //          GPIOC->ODR|=1<<13;
@@ -114,10 +134,12 @@ int main(void)
 //          GPIOC->ODR&=~(1<<13);
 //          HAL_Delay(500);
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
+
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -127,6 +149,7 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
@@ -148,6 +171,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
@@ -159,6 +183,7 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
+
 /**
   * @brief ADC1 Initialization Function
   * @param None
@@ -166,9 +191,12 @@ void SystemClock_Config(void)
   */
 static void MX_ADC1_Init(void)
 {
+
   /* USER CODE BEGIN ADC1_Init 0 */
   /* USER CODE END ADC1_Init 0 */
+
   ADC_ChannelConfTypeDef sConfig = {0};
+
   /* USER CODE BEGIN ADC1_Init 1 */
   /* USER CODE END ADC1_Init 1 */
   /** Common config
@@ -236,7 +264,9 @@ static void MX_ADC1_Init(void)
   }
   /* USER CODE BEGIN ADC1_Init 2 */
   /* USER CODE END ADC1_Init 2 */
+
 }
+
 /**
   * @brief TIM1 Initialization Function
   * @param None
@@ -244,14 +274,17 @@ static void MX_ADC1_Init(void)
   */
 static void MX_TIM1_Init(void)
 {
+
   /* USER CODE BEGIN TIM1_Init 0 */
   /* USER CODE END TIM1_Init 0 */
+
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
+
   /* USER CODE BEGIN TIM1_Init 1 */
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0x00;
+  htim1.Init.Prescaler = 0;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -274,7 +307,9 @@ static void MX_TIM1_Init(void)
   }
   /* USER CODE BEGIN TIM1_Init 2 */
   /* USER CODE END TIM1_Init 2 */
+
 }
+
 /**
   * @brief GPIO Initialization Function
   * @param None
@@ -283,18 +318,30 @@ static void MX_TIM1_Init(void)
 static void MX_GPIO_Init(void)
 {
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
   /* GPIO Ports Clock Enable */
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOC);
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOA);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
+
   /**/
   LL_GPIO_SetOutputPin(GPIOC, OUT_1_Pin|OUT_2_Pin|OUT_3_Pin);
+
   /**/
   GPIO_InitStruct.Pin = OUT_1_Pin|OUT_2_Pin|OUT_3_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /**/
+  GPIO_InitStruct.Pin = START_Pin;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(START_GPIO_Port, &GPIO_InitStruct);
+
 }
+
 /* USER CODE BEGIN 4 */
 void timerUpCallBack(void){
 i+=1;
@@ -412,6 +459,7 @@ void timerEventHandler(uint8_t i){
     // here we will cound Hb concentrations
 }
 /* USER CODE END 4 */
+
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
@@ -428,6 +476,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
+
 #ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
@@ -444,4 +493,5 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
