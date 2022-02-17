@@ -104,7 +104,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC1_Init();
-  while((GPIOB->IDR)&GPIO_IDR_IDR9)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
@@ -494,4 +493,3 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
