@@ -48,7 +48,7 @@ uint16_t ledActive;
 uint16_t dat_660_discr_1,dat_660_discr_2,dat_880_discr_1,dat_880_discr_2,dat_940_discr_1,dat_940_discr_2;
 float data_660nm_1,data_660nm_2,data_880nm_1,data_880nm_2,data_940nm_1,data_940nm_2,delta1,delta2,delta3;
 float OD_660nm,OD_880nm,OD_940nm,Ua_660nm,Ua_880nm,Ua_940nm,CHb,CHbO2,CH2O;
-float det;
+float det, T, Tstart, deltaT;
 //     Extinction matrix
 float E_hb_660=0.8; float E_HbO2_660=0.08; float E_H2O_660=0.001;
 float E_hb_880=0.2; float E_HbO2_880=0.3;  float E_H2O_880=0.05;
@@ -112,6 +112,22 @@ int main(void)
   ADC1->CR2 |= ADC_CR2_CAL; // запуск калибровки
   while ((ADC1->CR2 & ADC_CR2_CAL) != 0){} ; // ожидание окончания калибровки
   HAL_ADCEx_Calibration_Start(&hadc1);
+
+  /////////////////////////////////////////// TEMPstart MEAS ///////////////////////////////
+  ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
+  ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
+ADC1->SQR1 =0; // 1 регулярный канал
+ADC1->SQR3 =0x09; // 1 преобразование - канал 9
+ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+ADC1->CR2 |= ADC_CR2_ADON;
+ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
+Tstart=((((ADC1->DR)*5)/4096)-0.5)/0.01;
+ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+ADC1->CR2 &= ~ADC_CR2_ADON;
+  /////////////////////////////////////////////////////////////////////////////////////
+
 
      ADC1->CR2 &= ~ADC_CR2_ADON; // запретить АЦП
      ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
@@ -207,7 +223,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.NbrOfDiscConversion = 1;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 6;
+  hadc1.Init.NbrOfConversion = 7;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -257,6 +273,14 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_7;
   sConfig.Rank = ADC_REGULAR_RANK_6;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Rank = ADC_REGULAR_RANK_7;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -384,12 +408,27 @@ void timerEventHandler(uint8_t i){
          OD_660nm=logf(OD_660nm);
      }
      Ua_660nm=OD_660nm/(-0.508);
+     /////////////////////////////////////////// TEMP MEAS ///////////////////////////////
+     ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
+     ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
+ ADC1->SQR1 =0; // 1 регулярный канал
+ ADC1->SQR3 =0x09; // 1 преобразование - канал 9
+ ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+ ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+ ADC1->CR2 |= ADC_CR2_ADON;
+ ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+   while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
+   T=((((ADC1->DR)*5)/4096)-0.5)/0.01;
+   deltaT = T - Tstart;
+   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+   ADC1->CR2 &= ~ADC_CR2_ADON;
+     /////////////////////////////////////////////////////////////////////////////////////
 }
     if(i==1){            //    880 nm LED
          ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
          ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
          ADC1->SQR1 =0; // 1 регулярный канал
-         ADC1->SQR3 =0x03; // 1 преобразование - канал 0
+         ADC1->SQR3 =0x03; // 1 преобразование - канал 3
          ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
          ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
          ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
@@ -422,7 +461,7 @@ void timerEventHandler(uint8_t i){
          ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
          ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
          ADC1->SQR1 =0; // 1 регулярный канал
-         ADC1->SQR3 =0x06; // 1 преобразование - канал 0
+         ADC1->SQR3 =0x06; // 1 преобразование - канал 6
          ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
          ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
          ADC1->CR2 |= ADC_CR2_ADON; // разрешить АЦП
