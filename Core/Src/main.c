@@ -106,28 +106,39 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-
+  while((GPIOB->IDR)&GPIO_IDR_IDR9){};
   HAL_TIM_Base_Start_IT(&htim1);
   HAL_Delay(1);
   ADC1->CR2 |= ADC_CR2_CAL; // запуск калибровки
   while ((ADC1->CR2 & ADC_CR2_CAL) != 0){} ; // ожидание окончания калибровки
   HAL_ADCEx_Calibration_Start(&hadc1);
 
-  /////////////////////////////////////////// TEMPstart MEAS ///////////////////////////////
+
+  ADC1->CR2 &= ~ADC_CR2_ADON; // запретить АЦП
+  ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
+  ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
+//     ADC1->SQR1 =0; // 1 регулярный канал
+//     ADC1->SQR3 =0; // 1 преобразование - канал 0
+  ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+  ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+  ADC1->CR2 |= ADC_CR2_ADON;
+  /////////////////////////////////////////// TEMP start MEAS ///////////////////////////////
   ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
   ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
 ADC1->SQR1 =0; // 1 регулярный канал
-ADC1->SQR3 =0x09; // 1 преобразование - канал 9
+ADC1->SQR3 =0x08; // 1 преобразование - канал 9
 ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
 ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
 ADC1->CR2 |= ADC_CR2_ADON;
 ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
 while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
-Tstart=((((ADC1->DR)*5)/4096)-0.5)/0.01;
+Tstart=(float)((ADC1->DR)*3.3)/4096;
+Tstart = (Tstart-0.5)/0.01;
+//Tstart=(float)((((ADC1->DR)*5)/4096)-0.5);
+
 ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
 ADC1->CR2 &= ~ADC_CR2_ADON;
-  /////////////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////////////////////
 
      ADC1->CR2 &= ~ADC_CR2_ADON; // запретить АЦП
      ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
@@ -144,10 +155,7 @@ ADC1->CR2 &= ~ADC_CR2_ADON;
 
   while (1)
   {
-//          GPIOC->ODR|=1<<13;
-//          HAL_Delay(500);
-//          GPIOC->ODR&=~(1<<13);
-//          HAL_Delay(500);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -279,7 +287,7 @@ static void MX_ADC1_Init(void)
   }
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Channel = ADC_CHANNEL_8;
   sConfig.Rank = ADC_REGULAR_RANK_7;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -348,13 +356,14 @@ static void MX_GPIO_Init(void)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOB);
 
   /**/
-  LL_GPIO_SetOutputPin(GPIOC, OUT_1_Pin|OUT_2_Pin|OUT_3_Pin);
+  LL_GPIO_ResetOutputPin(GPIOC, OUT_1_Pin|OUT_2_Pin|OUT_3_Pin);
 
   /**/
   GPIO_InitStruct.Pin = OUT_1_Pin|OUT_2_Pin|OUT_3_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
   LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /**/
@@ -408,21 +417,7 @@ void timerEventHandler(uint8_t i){
          OD_660nm=logf(OD_660nm);
      }
      Ua_660nm=OD_660nm/(-0.508);
-     /////////////////////////////////////////// TEMP MEAS ///////////////////////////////
-     ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
-     ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
- ADC1->SQR1 =0; // 1 регулярный канал
- ADC1->SQR3 =0x09; // 1 преобразование - канал 9
- ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
- ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
- ADC1->CR2 |= ADC_CR2_ADON;
- ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
-   while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
-   T=((((ADC1->DR)*5)/4096)-0.5)/0.01;
-   deltaT = T - Tstart;
-   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
-   ADC1->CR2 &= ~ADC_CR2_ADON;
-     /////////////////////////////////////////////////////////////////////////////////////
+
 }
     if(i==1){            //    880 nm LED
          ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
@@ -489,6 +484,22 @@ void timerEventHandler(uint8_t i){
                  OD_940nm=logf(OD_940nm);
              }
              Ua_940nm=OD_940nm/(-0.508);
+             /////////////////////////////////////////// TEMP MEAS ///////////////////////////////
+             ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
+             ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
+         ADC1->SQR1 =0; // 1 регулярный канал
+         ADC1->SQR3 =0x08; // 1 преобразование - канал 9
+         ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+         ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+         ADC1->CR2 |= ADC_CR2_ADON;
+         ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+           while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
+        //   T=(float)((((ADC1->DR)*5)/4096)-0.5);
+           T=(float)((ADC1->DR)*3.3)/4096;
+           T = (T-0.5)/0.01;
+           deltaT = T-Tstart;
+           ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+           ADC1->CR2 &= ~ADC_CR2_ADON;
 //
 //     CHb=(E_Hb_660_*Ua_660nm+E_Hb_880_*Ua_880nm+E_Hb_940_*Ua_940nm)*67000;
 //     CHbO2=(E_HbO2_660_*Ua_660nm+E_HbO2_880_*Ua_880nm+E_HbO2_940_*Ua_940nm)*67000;
