@@ -45,10 +45,10 @@ TIM_HandleTypeDef htim1;
 /* USER CODE BEGIN PV */
 uint32_t leds[3];
 uint16_t ledActive;
-uint16_t dat_660_discr_1,dat_660_discr_2,dat_880_discr_1,dat_880_discr_2,dat_940_discr_1,dat_940_discr_2, Tdiscr;
+uint16_t dat_660_discr_1,dat_660_discr_2,dat_880_discr_1,dat_880_discr_2,dat_940_discr_1,dat_940_discr_2;
 float data_660nm_1,data_660nm_2,data_880nm_1,data_880nm_2,data_940nm_1,data_940nm_2,delta1,delta2,delta3;
 float OD_660nm,OD_880nm,OD_940nm,Ua_660nm,Ua_880nm,Ua_940nm,CHb,CHbO2,CH2O;
-float det, T, Tstart, deltaT, Red_2_infrared_Ratio;
+float det, T, Tstart, deltaT;
 //     Extinction matrix
 float E_hb_660=0.8; float E_HbO2_660=0.08; float E_H2O_660=0.001;
 float E_hb_880=0.2; float E_HbO2_880=0.3;  float E_H2O_880=0.05;
@@ -106,7 +106,6 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  T = 0;
   Tstart=0;
   deltaT=0;
   while((GPIOB->IDR)&GPIO_IDR_IDR9){
@@ -121,14 +120,13 @@ int main(void)
 	ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
 	while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
 	T=(float)((ADC1->DR)*3.3)/4096;
-	T = (float)(T-0.5)/(float)0.01;
+	T = (T-0.5)/0.01;
 	ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
 	ADC1->CR2 &= ~ADC_CR2_ADON;
 	HAL_Delay(10);
 	////////////////////////////////////////////////////////////////////////////////////////
   };
-  Tstart = (float)T;
-  T = 0;
+  Tstart = T;
   HAL_TIM_Base_Start_IT(&htim1);
   HAL_Delay(50);
   ADC1->CR2 |= ADC_CR2_CAL; // запуск калибровки
@@ -422,7 +420,7 @@ void timerEventHandler(uint8_t i){
          OD_660nm=(float)dat_660_discr_1/dat_660_discr_2;
          OD_660nm=logf(OD_660nm);
      }
-     Ua_660nm=(float)OD_660nm/(float)(-0.508);
+     Ua_660nm=OD_660nm/(-0.508);
 
 }
     if(i==1){            //    880 nm LED
@@ -456,7 +454,7 @@ void timerEventHandler(uint8_t i){
                  OD_880nm=(float)dat_880_discr_1/dat_880_discr_2;
                  OD_880nm=logf(OD_880nm);
              }
-             Ua_880nm=(float)OD_880nm/(float)(-0.508);
+             Ua_880nm=OD_880nm/(-0.508);
 }
     if(i==2){            //    940 nm LED
          ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
@@ -489,26 +487,23 @@ void timerEventHandler(uint8_t i){
                  OD_940nm=(float)dat_940_discr_1/dat_940_discr_2;
                  OD_940nm=logf(OD_940nm);
              }
-             Ua_940nm=(float)OD_940nm/(float)(-0.508);
+             Ua_940nm=OD_940nm/(-0.508);
              /////////////////////////////////////////// TEMP MEAS ///////////////////////////////
-       	  ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
-       	  ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
-       	ADC1->SQR1 =0; // 1 регулярный канал
-       	ADC1->SQR3 =0x08; // 1 преобразование - канал 9
-       	ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
-       	ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
-       	ADC1->CR2 |= ADC_CR2_ADON;
-       	ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
-       	while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
-           	   Tdiscr = ADC1->DR;
-			   ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
-			   ADC1->CR2 &= ~ADC_CR2_ADON;
-           Red_2_infrared_Ratio = (float)Ua_660nm/Ua_880nm;
-           T = 0;
-           T=(float)(((Tdiscr)*3.3)/4096);
-           Tdiscr = 0;
-		   T = (((float)(T-0.5))/((float)0.01))-5;
-		   deltaT = T-Tstart - 0;
+             ADC1->CR2 |= ADC_CR2_EXTSEL; // источник запуска - SWSTART
+             ADC1->CR2 |= ADC_CR2_EXTTRIG; // разрешение внешнего запуска для регулярных каналов
+         ADC1->SQR1 =0; // 1 регулярный канал
+         ADC1->SQR3 =0x08; // 1 преобразование - канал 9
+         ADC1->CR2 &= ~ADC_CR2_CONT; // запрет непрерывного режима
+         ADC1->CR1 &= ~ADC_CR1_SCAN; // запрет режима сканирования
+         ADC1->CR2 |= ADC_CR2_ADON;
+         ADC1->CR2 |= ADC_CR2_SWSTART; // запуск АЦП
+           while(!(ADC1->SR & ADC_SR_EOC)); // ожидание завершения преобразования
+           T=(float)((ADC1->DR)*3.3)/4096;
+           T = (T-0.5)/0.01;
+           deltaT = T-Tstart;
+           ADC1->CR2 &= ~ADC_CR2_SWSTART; // выключение АЦП
+           ADC1->CR2 &= ~ADC_CR2_ADON;
+//
 //     CHb=(E_Hb_660_*Ua_660nm+E_Hb_880_*Ua_880nm+E_Hb_940_*Ua_940nm)*67000;
 //     CHbO2=(E_HbO2_660_*Ua_660nm+E_HbO2_880_*Ua_880nm+E_HbO2_940_*Ua_940nm)*67000;
 //     CH2O=(E_H2O_660_*Ua_660nm+E_H2O_880_*Ua_880nm+E_H2O_940_*Ua_940nm)*18;
@@ -550,3 +545,4 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
